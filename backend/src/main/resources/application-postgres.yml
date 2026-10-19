@@ -1,0 +1,9 @@
+# PostgreSQL 18+ (18/19) Production Profile
+datasources:
+  default:
+    url: ${JDBC_URL:`jdbc:postgresql://localhost:5432/peermesh`}
+    driver-class-name: org.postgresql.Driver
+    username: ${JDBC_USER:`peermesh`}
+    password: ${JDBC_PASSWORD:`peermesh_secret`}
+    dialect: POSTGRES
+    schema-generate: NONE

@@ -1,0 +1,92 @@
+# ====================================================================
+# PeerMesh Dex OpenID Connect (OIDC) Identity Provider Configuration
+# ====================================================================
+
+# The base path of dex and the external name of the OpenID Connect service.
+issuer: http://localhost:5556/dex
+
+# Storage configuration - in-memory storage for rapid development & portability
+storage:
+  type: memory
+
+# Configuration for the HTTP server
+web:
+  http: 0.0.0.0:5556
+  allowedOrigins:
+    - "http://localhost:5173"
+    - "http://127.0.0.1:5173"
+    - "http://localhost:3000"
+    - "http://127.0.0.1:3000"
+    - "http://localhost:8085"
+    - "http://127.0.0.1:8085"
+
+# Configuration for telemetry/health endpoint
+telemetry:
+  http: 0.0.0.0:5558
+
+# Branding and UI configuration
+frontend:
+  issuer: "PeerMesh Identity Provider"
+  theme: "light"
+
+# Static OAuth2 / OIDC clients configured for the PeerMesh frontend & backend
+staticClients:
+  - id: peermesh-app
+    redirectURIs:
+      - 'http://localhost:5173'
+      - 'http://127.0.0.1:5173'
+      - 'http://localhost:5173/callback'
+      - 'http://127.0.0.1:5173/callback'
+      - 'http://localhost:3000'
+      - 'http://127.0.0.1:3000'
+      - 'http://localhost:3000/callback'
+      - 'http://127.0.0.1:3000/callback'
+      - 'http://localhost:8085/api/auth/dex/callback'
+      - 'http://127.0.0.1:8085/api/auth/dex/callback'
+    name: 'PeerMesh Network'
+    secret: 'peermesh-dex-secret'
+    public: true
+
+# Enable local password database for static users
+enablePasswordDB: true
+
+# ====================================================================
+# Provisioned Dex Users (Mapped to PeerMesh Network Personas)
+# Default password for all provisioned users is: password
+# ====================================================================
+staticPasswords:
+  - email: "elena@proton.me"
+    # bcrypt hash of "password"
+    hash: "$2a$10$2b2cU8CPhOTaGrs1HRQuAueS7JTT5ZHsHSzYiFPm1leZck7Mc8T4W"
+    username: "Elena Rostova"
+    userID: "a0000000-0000-0000-0000-000000000001"
+
+  - email: "andrei.muresan@hosptim.ro"
+    hash: "$2a$10$2b2cU8CPhOTaGrs1HRQuAueS7JTT5ZHsHSzYiFPm1leZck7Mc8T4W"
+    username: "Dr. Andrei Mureșan"
+    userID: "a0000000-0000-0000-0000-000000000005"
+
+  - email: "radu.ionescu@umft.ro"
+    hash: "$2a$10$2b2cU8CPhOTaGrs1HRQuAueS7JTT5ZHsHSzYiFPm1leZck7Mc8T4W"
+    username: "Dr. Radu Ionescu"
+    userID: "a0000000-0000-0000-0000-000000000007"
+
+  - email: "sorina.popa@pediatrie-tm.ro"
+    hash: "$2a$10$2b2cU8CPhOTaGrs1HRQuAueS7JTT5ZHsHSzYiFPm1leZck7Mc8T4W"
+    username: "Dr. Sorina Popa"
+    userID: "a0000000-0000-0000-0000-000000000006"
+
+  - email: "marcus@pg-specialists.io"
+    hash: "$2a$10$2b2cU8CPhOTaGrs1HRQuAueS7JTT5ZHsHSzYiFPm1leZck7Mc8T4W"
+    username: "Marcus Thorne"
+    userID: "a0000000-0000-0000-0000-000000000002"
+
+  - email: "nora@zen-frontend.dev"
+    hash: "$2a$10$2b2cU8CPhOTaGrs1HRQuAueS7JTT5ZHsHSzYiFPm1leZck7Mc8T4W"
+    username: "Nora Lindqvist"
+    userID: "a0000000-0000-0000-0000-000000000003"
+
+  - email: "kai.infra@pm.me"
+    hash: "$2a$10$2b2cU8CPhOTaGrs1HRQuAueS7JTT5ZHsHSzYiFPm1leZck7Mc8T4W"
+    username: "Kai Zhang"
+    userID: "a0000000-0000-0000-0000-000000000004"

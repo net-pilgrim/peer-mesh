@@ -1,0 +1,105 @@
+services:
+  postgres:
+    image: ${POSTGRES_IMAGE:-postgres:18-alpine}
+    container_name: peermesh-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: peermesh
+      POSTGRES_USER: peermesh
+      POSTGRES_PASSWORD: peermesh_secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+      - ./db/graph_queries.sql:/docker-entrypoint-initdb.d/02_graph_queries.sql:ro
+      - ./db/seed.sql:/docker-entrypoint-initdb.d/03_seed.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U peermesh -d peermesh"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - peermesh-network
+
+  redis:
+    image: ${REDIS_IMAGE:-redis:7-alpine}
+    container_name: peermesh-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - peermesh-network
+
+  dex:
+    image: ${DEX_IMAGE:-ghcr.io/dexidp/dex:v2.41.1}
+    container_name: peermesh-dex
+    restart: unless-stopped
+    command: ["dex", "serve", "/etc/dex/config.yaml"]
+    volumes:
+      - ./dex/config.yaml:/etc/dex/config.yaml:ro
+    ports:
+      - "5556:5556"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - peermesh-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: peermesh-backend
+    restart: unless-stopped
+    environment:
+      MICRONAUT_ENVIRONMENTS: postgres
+      JDBC_URL: jdbc:postgresql://postgres:5432/peermesh
+      JDBC_USER: peermesh
+      JDBC_PASSWORD: peermesh_secret
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      DEX_ISSUER: http://localhost:5556/dex
+      DEX_INTERNAL_URL: http://dex:5556/dex
+      PORT: "8085"
+    ports:
+      - "8085:8085"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      dex:
+        condition: service_started
+    networks:
+      - peermesh-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: peermesh-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+      - "5173:80"
+    depends_on:
+      - backend
+      - dex
+    networks:
+      - peermesh-network
+
+volumes:
+  pgdata:
+  redisdata:
+
+networks:
+  peermesh-network:
+    driver: bridge

@@ -1,0 +1,119 @@
+plugins {
+    id("io.micronaut.application") version "5.0.2"
+    id("com.gradleup.shadow") version "9.4.1"
+    id("io.micronaut.test-resources") version "5.0.2"
+    id("io.micronaut.aot") version "5.0.2"
+}
+
+version = "0.1"
+group = "com.network"
+
+
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    annotationProcessor("io.micronaut.data:micronaut-data-processor")
+    annotationProcessor("io.micronaut:micronaut-http-validation")
+    annotationProcessor("io.micronaut.security:micronaut-security-processor")
+    annotationProcessor("io.micronaut.serde:micronaut-serde-processor")
+    annotationProcessor("io.micronaut.validation:micronaut-validation-processor")
+    implementation("io.micronaut.data:micronaut-data-jdbc")
+    implementation("io.micronaut.security:micronaut-security-jwt")
+    implementation("io.micronaut.serde:micronaut-serde-jackson")
+    implementation("io.micronaut.sql:micronaut-jdbc-hikari")
+    implementation("io.micronaut.validation:micronaut-validation")
+    implementation("jakarta.validation:jakarta.validation-api")
+    implementation("io.micronaut.objectstorage:micronaut-object-storage-local")
+    implementation("io.micronaut.flyway:micronaut-flyway")
+    implementation("io.micronaut.redis:micronaut-redis-lettuce")
+    implementation("io.micronaut.cache:micronaut-cache-core")
+    runtimeOnly("org.flywaydb:flyway-database-postgresql")
+    compileOnly("io.micronaut:micronaut-http-client")
+    runtimeOnly("ch.qos.logback:logback-classic")
+    runtimeOnly("org.yaml:snakeyaml")
+    runtimeOnly("org.postgresql:postgresql")
+    testImplementation("io.micronaut:micronaut-http-client")
+    testImplementation("com.h2database:h2")
+    runtimeOnly("com.h2database:h2")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    aotPlugins platform("io.micronaut.platform:micronaut-platform:5.2.2")
+    aotPlugins("io.micronaut.security:micronaut-security-aot")
+}
+
+
+
+application {
+    mainClass = "com.network.Application"
+}
+
+java {
+    sourceCompatibility = JavaVersion.toVersion("25")
+    targetCompatibility = JavaVersion.toVersion("25")
+}
+
+
+
+
+graalvmNative.toolchainDetection = false
+graalvmNative {
+    binaries {
+        all {
+            buildArgs.add("-H:+SharedArenaSupport")
+        }
+    }
+}
+
+
+
+
+micronaut {
+    runtime("netty")
+    testRuntime("junit5")
+    processing {
+        incremental(true)
+        annotations("com.network.*")
+    }
+    testResources {
+        version = "4.0.0"
+        enabled = false
+    }
+    aot {
+        // Please review carefully the optimizations enabled below
+        // Check https://micronaut-projects.github.io/micronaut-aot/latest/guide/ for more details
+        convertYamlToJava = false
+        precomputeOperations = false
+        cacheEnvironment = false
+        optimizeClassLoading = true
+        deduceEnvironment = false
+        optimizeNetty = true
+        replaceLogbackXml = true
+        configurationProperties.put("micronaut.security.jwks.enabled","false")
+    }
+
+}
+tasks.withType(io.micronaut.gradle.testresources.StartTestResourcesService).configureEach {
+    useClassDataSharing = false
+}
+
+tasks.named("dockerfile") {
+
+    baseImage = "eclipse-temurin:25-jre"
+}
+
+
+
+
+
+
+
+// https://docs.gradle.org/current/userguide/upgrading_major_version_9.html#test_task_fails_when_no_tests_are_discovered
+tasks.withType(AbstractTestTask).configureEach {
+    failOnNoDiscoveredTests = false
+}
+
+
+
+

@@ -1,0 +1,63 @@
+micronaut:
+  application:
+    name: peermesh
+  server:
+    port: ${PORT:8085}
+    cors:
+      enabled: true
+      configurations:
+        default:
+          allowed-origins:
+            - "http://localhost:5173"
+            - "http://localhost:4173"
+            - "http://127.0.0.1:5173"
+            - "http://127.0.0.1:4173"
+          allowed-methods:
+            - GET
+            - POST
+            - PUT
+            - DELETE
+            - OPTIONS
+          allowed-headers:
+            - "*"
+          allow-credentials: false
+  security:
+    enabled: false
+  object-storage:
+    local:
+      default:
+        enabled: true
+        path: ${STORAGE_PATH:build/object-storage}
+  caches:
+    peermesh-sessions:
+      expire-after-write: 24h
+
+datasources:
+  default:
+    url: ${JDBC_URL:`jdbc:h2:mem:peermesh;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;DB_CLOSE_DELAY=-1`}
+    driver-class-name: ${JDBC_DRIVER:`org.h2.Driver`}
+    username: ${JDBC_USER:`sa`}
+    password: ${JDBC_PASSWORD:``}
+    dialect: ${JDBC_DIALECT:`H2`}
+    schema-generate: NONE
+
+flyway:
+  datasources:
+    default:
+      enabled: true
+      locations:
+        - classpath:db/migration
+      baseline-on-migrate: true
+
+redis:
+  uri: ${REDIS_URI:`redis://${REDIS_HOST:localhost}:${REDIS_PORT:6379}`}
+  host: ${REDIS_HOST:localhost}
+  port: ${REDIS_PORT:6379}
+  timeout: ${REDIS_TIMEOUT:2000}
+
+dex:
+  issuer: ${DEX_ISSUER:`http://localhost:5556/dex`}
+  internal-url: ${DEX_INTERNAL_URL:`http://localhost:5556/dex`}
+  client-id: ${DEX_CLIENT_ID:peermesh-app}
+  client-secret: ${DEX_CLIENT_SECRET:peermesh-dex-secret}
+  redirect-uri: ${DEX_REDIRECT_URI:`http://localhost:5173/callback`}

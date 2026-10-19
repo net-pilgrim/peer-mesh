@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PeerMesh | Privacy-First Professional Network</title>
+    <meta name="description" content="A fast, distraction-free professional network with native graph connections, unified markdown/link publishing, and decentralized messaging outside the platform." />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#f8fafc" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%233b82f6'><circle cx='5' cy='12' r='3'/><circle cx='19' cy='6' r='3'/><circle cx='19' cy='18' r='3'/><path d='M5 12l14-6M5 12l14 6' stroke='%233b82f6' stroke-width='2'/></svg>" />
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.js"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(() => {});
+        });
+      }
+    </script>
+  </body>
+</html>
